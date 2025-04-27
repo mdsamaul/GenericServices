@@ -1,0 +1,22 @@
+﻿@model DataTable.Models.Teacher
+
+@{
+    ViewData["Title"] = "Edit Teacher";
+}
+
+<h2>Edit Teacher</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Name">Name</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Subject">Subject</label>
+        <input asp-for="Subject" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
+
+<a href="@Url.Action("Index", "Teacher")">Back to List</a>

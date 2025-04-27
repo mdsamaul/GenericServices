@@ -1,0 +1,35 @@
+﻿@model IEnumerable<DataTable.Models.Teacher>
+
+@{
+    ViewData["Title"] = "Teachers List";
+}
+
+<h2>Teachers List</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Subject</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var teacher in Model)
+        {
+            <tr>
+                <td>@teacher.Id</td>
+                <td>@teacher.Name</td>
+                <td>@teacher.Subject</td>
+                <td>
+                    <a href="@Url.Action("Details", "Teacher", new { id = teacher.Id })">Details</a> |
+                    <a href="@Url.Action("Edit", "Teacher", new { id = teacher.Id })">Edit</a> |
+                    <a href="@Url.Action("Delete", "Teacher", new { id = teacher.Id })">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("Create", "Teacher")">Create New Teacher</a>

@@ -1,0 +1,16 @@
+﻿@model DataTable.Models.Teacher
+
+@{
+    ViewData["Title"] = "Teacher Details";
+}
+
+<h2>Teacher Details</h2>
+
+<div>
+    <strong>Name:</strong> @Model.Name
+</div>
+<div>
+    <strong>Subject:</strong> @Model.Subject
+</div>
+
+<a href="@Url.Action("Index", "Teacher")">Back to List</a>

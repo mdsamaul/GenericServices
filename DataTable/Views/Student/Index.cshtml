@@ -1,0 +1,37 @@
+﻿@model List<DataTable.Models.Student>
+
+@{
+    ViewData["Title"] = "Student List";
+}
+
+<h2>Student List</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div style="color:green;">@TempData["Message"]</div>
+}
+
+<table border="1" cellpadding="5" cellspacing="0" style="width: 100%;">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Department</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var student in Model)
+        {
+            <tr>
+                <td>@student.Id</td>
+                <td>@student.Name</td>
+                <td>@student.Age</td>
+                <td>@student.Department</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<br />
+<a href="/Student/Create">Add New Student</a>

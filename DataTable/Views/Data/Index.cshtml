@@ -1,0 +1,201 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Employee Data</h1>
+
+<div class="mb-3">
+    <!-- Dropdown for selecting table type -->
+    <label for="tableSelector" class="form-label">Select Table:</label>
+    <select id="tableSelector" class="form-select">
+        <option value="Employees">Employees</option>
+        <option value="Departments">Departments</option>
+        <option value="Projects">Projects</option>
+        <option value="Salaries">Salaries</option>
+        <option value="EmployeeProjects">EmployeeProjects</option>
+    </select>
+</div>
+
+<div class="mb-3">
+    <!-- Button options -->
+    <button id="emp" class="btn btn-primary">Employee</button>
+    <button id="dep" class="btn btn-secondary">Departments</button>
+    <button id="prj" class="btn btn-info">Projects</button>
+    <button id="sal" class="btn btn-warning">Salaries</button>
+    <button id="empPrj" class="btn btn-success">EmployeeProjects</button>
+</div>
+
+<!-- Table to show data -->
+<div class="table-responsive">
+    <table id="dynamicTable" class="table table-bordered table-striped">
+        <thead>
+            <!-- Dynamic columns will be added here -->
+        </thead>
+        <tbody>
+            <!-- Data will be dynamically loaded here -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Load libraries from the _Layout or add them here -->
+<!-- jQuery first -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Then DataTables -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+<script>
+    // Wait for both jQuery and DataTables to load
+    function checkDependencies() {
+        if (typeof jQuery === 'undefined') {
+            console.error('jQuery is not loaded!');
+            setTimeout(checkDependencies, 100);
+            return;
+        }
+
+        // Using a different approach to check if DataTables is loaded
+        if (!$.fn.dataTable) {
+            console.log('DataTables not loaded yet, trying to load it...');
+
+            // Load DataTables dynamically
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = 'https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css';
+            document.head.appendChild(link);
+
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js';
+            script.onload = initApp;
+            document.head.appendChild(script);
+        } else {
+            initApp();
+        }
+    }
+
+    function initApp() {
+        console.log('Starting application with jQuery and DataTables');
+
+        let currentTable = null;
+
+        // Function to load data with a regular table fallback
+        function loadTableData(tableName) {
+            console.log('Loading data for: ' + tableName);
+
+            // Clear any existing table
+            if (currentTable) {
+                try {
+                    currentTable.destroy();
+                } catch (e) {
+                    console.log('Error destroying table:', e);
+                }
+            }
+
+            $('#dynamicTable').empty();
+            $('#dynamicTable').html('<thead></thead><tbody></tbody>');
+
+            // Fetch data from server
+            $.ajax({
+                url: '/Data/GetData?tableName=' + tableName,
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    console.log('Data received for ' + tableName + ':', data);
+
+                    if (!data || data.length === 0) {
+                        $('#dynamicTable tbody').html('<tr><td colspan="100%">No data available</td></tr>');
+                        return;
+                    }
+
+                    // Create columns from data
+                    let columns = [];
+                    Object.keys(data[0]).forEach(function(key) {
+                        columns.push({ title: key, data: key });
+                    });
+
+                    // Try to use DataTables
+                    if ($.fn.dataTable) {
+                        try {
+                            currentTable = $('#dynamicTable').DataTable({
+                                data: data,
+                                columns: columns,
+                                destroy: true,
+                                paging: true,
+                                searching: true
+                            });
+                            console.log('DataTable created successfully');
+                        } catch (e) {
+                            console.error('Failed to create DataTable:', e);
+                            renderBasicTable(data, columns);
+                        }
+                    } else {
+                        console.warn('DataTables not available, using basic table');
+                        renderBasicTable(data, columns);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error:', error);
+                    $('#dynamicTable tbody').html('<tr><td colspan="100%">Error loading data: ' + error + '</td></tr>');
+                }
+            });
+        }
+
+        // Fallback function to render a basic table
+        function renderBasicTable(data, columns) {
+            const thead = $('#dynamicTable thead');
+            const tbody = $('#dynamicTable tbody');
+
+            // Create header row
+            let headerHTML = '<tr>';
+            columns.forEach(function(col) {
+                headerHTML += '<th>' + col.title + '</th>';
+            });
+            headerHTML += '</tr>';
+            thead.html(headerHTML);
+
+            // Create data rows
+            let rowsHTML = '';
+            data.forEach(function(item) {
+                rowsHTML += '<tr>';
+                columns.forEach(function(col) {
+                    rowsHTML += '<td>' + (item[col.data] !== null ? item[col.data] : '') + '</td>';
+                });
+                rowsHTML += '</tr>';
+            });
+            tbody.html(rowsHTML);
+        }
+
+        // Set up event handlers
+        $('#emp').on('click', function() {
+            loadTableData('Employees');
+        });
+
+        $('#dep').on('click', function() {
+            loadTableData('Departments');
+        });
+
+        $('#prj').on('click', function() {
+            loadTableData('Projects');
+        });
+
+        $('#sal').on('click', function() {
+            loadTableData('Salaries');
+        });
+
+        $('#empPrj').on('click', function() {
+            loadTableData('EmployeeProjects');
+        });
+
+        $('#tableSelector').on('change', function() {
+            loadTableData($(this).val());
+        });
+
+        // Load initial data
+        loadTableData('Employees');
+    }
+
+    // Start the initialization process
+    document.addEventListener('DOMContentLoaded', checkDependencies);
+</script>

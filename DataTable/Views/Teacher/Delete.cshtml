@@ -1,0 +1,15 @@
+﻿@model DataTable.Models.Teacher
+
+@{
+    ViewData["Title"] = "Delete Teacher";
+}
+
+<h2>Delete Teacher</h2>
+
+<h3>Are you sure you want to delete the teacher <strong>@Model.Name</strong>?</h3>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a href="@Url.Action("Index", "Teacher")" class="btn btn-secondary">Cancel</a>
+</form>
